@@ -113,6 +113,7 @@ type Client struct {
 
 	mutex        sync.Mutex
 	state        imap.ConnState
+	tlsConn      *tls.Conn
 	caps         imap.CapSet
 	pendingCapCh chan struct{}
 	mailbox      *SelectedMailbox
@@ -893,6 +894,15 @@ func (c *Client) Noop() *Command {
 	cmd := &Command{}
 	c.beginCommand("NOOP", cmd).end()
 	return cmd
+}
+
+// TLSConnectionState returns the Connection State of the TLS Connection if
+// there's one. Otherwise ok will return false.
+func (c *Client) TLSConnectionState() (state tls.ConnectionState, ok bool) {
+	if c.tlsConn == nil {
+		return
+	}
+	return c.tlsConn.ConnectionState(), true
 }
 
 // Logout sends a LOGOUT command.
